@@ -10,6 +10,7 @@ const emotions = {
   surprised: { eyeScale: 1.4, eyeY: 0, browY: -10, glowIntensity: 0.9, mouthCurve: -8 },
   oops: { eyeScale: 0.9, eyeY: 3, browY: 5, glowIntensity: 0.4, mouthCurve: -10 },
   engaged: { eyeScale: 1.1, eyeY: -2, browY: -3, glowIntensity: 0.7, mouthCurve: 5 },
+  angry: { eyeScale: 0.7, eyeY: 2, browY: 15, glowIntensity: 0.9, mouthCurve: -15 },
 }
 
 function TikiFace({ emotion = 'neutral', speaking = false }) {
