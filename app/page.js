@@ -4,15 +4,15 @@ import { useState, useEffect } from 'react'
 const REQUIRED_PIN = process.env.NEXT_PUBLIC_CHAT_PIN || '1209'
 
 const emotions = {
-  neutral: { eyeScale: 1, eyeY: 0, glowIntensity: 0.3, mouthCurve: 0 },
-  thinking: { eyeScale: 0.8, eyeY: -5, glowIntensity: 0.6, mouthCurve: 0 },
-  happy: { eyeScale: 1.2, eyeY: 0, glowIntensity: 0.8, mouthCurve: 10 },
-  surprised: { eyeScale: 1.4, eyeY: 0, glowIntensity: 0.9, mouthCurve: -5 },
-  oops: { eyeScale: 0.9, eyeY: 3, glowIntensity: 0.4, mouthCurve: -8 },
-  engaged: { eyeScale: 1.1, eyeY: -2, glowIntensity: 0.7, mouthCurve: 5 },
+  neutral: { eyeScale: 1, eyeY: 0, browY: 0, glowIntensity: 0.3, mouthCurve: 0 },
+  thinking: { eyeScale: 0.8, eyeY: -3, browY: -8, glowIntensity: 0.6, mouthCurve: 0 },
+  happy: { eyeScale: 1.2, eyeY: 0, browY: 5, glowIntensity: 0.8, mouthCurve: 15 },
+  surprised: { eyeScale: 1.4, eyeY: 0, browY: -10, glowIntensity: 0.9, mouthCurve: -8 },
+  oops: { eyeScale: 0.9, eyeY: 3, browY: 5, glowIntensity: 0.4, mouthCurve: -10 },
+  engaged: { eyeScale: 1.1, eyeY: -2, browY: -3, glowIntensity: 0.7, mouthCurve: 5 },
 }
 
-function TikiAvatar({ emotion = 'neutral', speaking = false }) {
+function TikiFace({ emotion = 'neutral', speaking = false }) {
   const e = emotions[emotion] || emotions.neutral
   const [blink, setBlink] = useState(false)
   const [glowPulse, setGlowPulse] = useState(0)
@@ -34,93 +34,105 @@ function TikiAvatar({ emotion = 'neutral', speaking = false }) {
     return () => clearInterval(pulseInterval)
   }, [])
 
-  const pulseIntensity = e.glowIntensity + Math.sin(glowPulse) * 0.1
+  const pulseIntensity = e.glowIntensity + Math.sin(glowPulse) * 0.15
 
   return (
-    <svg viewBox="0 0 200 250" style={{ width: '100%', height: '100%', maxHeight: '100vh' }}>
+    <svg viewBox="0 0 100 80" preserveAspectRatio="xMidYMid meet" style={{ width: '100vw', height: '100vh' }}>
       <defs>
-        <radialGradient id="tikiglow" cx="50%" cy="40%" r="60%">
-          <stop offset="0%" stopColor="#ff6b35" stopOpacity={pulseIntensity} />
+        <radialGradient id="glow" cx="50%" cy="50%" r="80%">
+          <stop offset="0%" stopColor="#ff6b35" stopOpacity={pulseIntensity * 0.3} />
           <stop offset="100%" stopColor="#ff6b35" stopOpacity="0" />
         </radialGradient>
       </defs>
       
-      {/* Glow */}
-      <circle cx="100" cy="80" r="80" fill="url(#tikiglow)" />
+      {/* Background glow */}
+      <rect x="0" y="0" width="100" height="80" fill="url(#glow)" />
       
       {/* Left eyebrow */}
       <path 
-        d={`M 50 ${50 + e.eyeY * 1.5} Q 70 ${35 + e.eyeY * 1.5} 80 ${45 + e.eyeY * 1.5}`}
+        d={`M 18 ${18 + e.browY} Q 28 ${10 + e.browY} 38 ${16 + e.browY}`}
         fill="none"
         stroke="#ff6b35"
-        strokeWidth="4"
+        strokeWidth="2.5"
         strokeLinecap="round"
         style={{ transition: 'all 0.3s ease' }}
       />
       
       {/* Right eyebrow */}
       <path 
-        d={`M 120 ${45 + e.eyeY * 1.5} Q 130 ${35 + e.eyeY * 1.5} 150 ${50 + e.eyeY * 1.5}`}
+        d={`M 62 ${16 + e.browY} Q 72 ${10 + e.browY} 82 ${18 + e.browY}`}
         fill="none"
         stroke="#ff6b35"
-        strokeWidth="4"
+        strokeWidth="2.5"
         strokeLinecap="round"
         style={{ transition: 'all 0.3s ease' }}
       />
       
       {/* Left eye */}
-      <circle 
-        cx="65" 
-        cy={70 + e.eyeY} 
-        r={blink ? 3 : 12 * e.eyeScale}
+      <ellipse 
+        cx="28" 
+        cy={30 + e.eyeY} 
+        rx={8 * e.eyeScale} 
+        ry={blink ? 1 : 10 * e.eyeScale}
         fill="#ff6b35"
         style={{ transition: 'all 0.2s ease' }}
       />
-      <circle 
-        cx="65" 
-        cy={70 + e.eyeY} 
-        r={blink ? 1 : 6 * e.eyeScale}
-        fill="#0f0f1a"
+      <ellipse 
+        cx="28" 
+        cy={30 + e.eyeY} 
+        rx={4 * e.eyeScale} 
+        ry={blink ? 0.5 : 5 * e.eyeScale}
+        fill="#0a0a0f"
         style={{ transition: 'all 0.2s ease' }}
       />
       
       {/* Right eye */}
-      <circle 
-        cx="135" 
-        cy={70 + e.eyeY} 
-        r={blink ? 3 : 12 * e.eyeScale}
+      <ellipse 
+        cx="72" 
+        cy={30 + e.eyeY} 
+        rx={8 * e.eyeScale} 
+        ry={blink ? 1 : 10 * e.eyeScale}
         fill="#ff6b35"
         style={{ transition: 'all 0.2s ease' }}
       />
-      <circle 
-        cx="135" 
-        cy={70 + e.eyeY} 
-        r={blink ? 1 : 6 * e.eyeScale}
-        fill="#0f0f1a"
+      <ellipse 
+        cx="72" 
+        cy={30 + e.eyeY} 
+        rx={4 * e.eyeScale} 
+        ry={blink ? 0.5 : 5 * e.eyeScale}
+        fill="#0a0a0f"
         style={{ transition: 'all 0.2s ease' }}
       />
       
-      {/* Nose (tiki style - triangle) */}
+      {/* Nose - tiki triangle */}
       <polygon 
-        points="100,95 95,110 105,110"
+        points="50,42 46,52 54,52"
         fill="#ff6b35"
       />
       
       {/* Mouth */}
       <path 
-        d={`M 75 130 Q 100 ${135 + e.mouthCurve * 1.5} 125 130`}
+        d={`M 35 62 Q 50 ${62 + e.mouthCurve} 65 62`}
         fill="none"
         stroke="#ff6b35"
-        strokeWidth="3"
+        strokeWidth="2.5"
         strokeLinecap="round"
         style={{ transition: 'all 0.3s ease' }}
       />
       
-      {/* Speaking indicator */}
+      {/* Speaking dots */}
       {speaking && (
-        <circle cx="100" cy="160" r="4" fill="#ff6b35">
-          <animate attributeName="opacity" values="1;0.3;1" dur="0.5s" repeatCount="indefinite" />
-        </circle>
+        <g>
+          <circle cx="42" cy="72" r="2" fill="#ff6b35">
+            <animate attributeName="opacity" values="1;0.3;1" dur="0.6s" repeatCount="indefinite" />
+          </circle>
+          <circle cx="50" cy="72" r="2" fill="#ff6b35">
+            <animate attributeName="opacity" values="0.3;1;0.3" dur="0.6s" repeatCount="indefinite" />
+          </circle>
+          <circle cx="58" cy="72" r="2" fill="#ff6b35">
+            <animate attributeName="opacity" values="1;0.3;1" dur="0.6s" begin="0.2s" repeatCount="indefinite" />
+          </circle>
+        </g>
       )}
     </svg>
   )
@@ -149,10 +161,10 @@ export default function Home() {
 
   const detectEmotion = (text) => {
     const lower = text.toLowerCase()
-    if (lower.includes('sorry') || lower.includes('oeps') || lower.includes('fout')) return 'oops'
-    if (lower.includes('!') || lower.includes('cool') || lower.includes('nice')) return 'happy'
-    if (lower.includes('?') || lower.includes('hmm') || lower.includes('denk')) return 'thinking'
-    if (lower.includes('wow') || lower.includes('whoa')) return 'surprised'
+    if (lower.includes('sorry') || lower.includes('oeps') || lower.includes('fout') || lower.includes('error')) return 'oops'
+    if (lower.includes('!') || lower.includes('cool') || lower.includes('nice') || lower.includes('great') || lower.includes('love')) return 'happy'
+    if (lower.includes('?') || lower.includes('hmm') || lower.includes('denk') || lower.includes('maybe')) return 'thinking'
+    if (lower.includes('wow') || lower.includes('whoa') || lower.includes('amazing')) return 'surprised'
     return 'engaged'
   }
 
@@ -165,16 +177,15 @@ export default function Home() {
     setIsThinking(true)
     setEmotion('thinking')
 
-    // Simulate response (replace with actual API call)
+    // Demo response - replace with real API call later
     setTimeout(() => {
       const response = { 
         role: 'assistant', 
-        content: 'Dit is een demo interface. Om mij echt te verbinden, moet Marcel de API endpoint configureren. Maar kijk - mijn gezicht reageert op emoties! 😊' 
+        content: 'Dit is een demo. Binnenkort word ik echt geconnect! 🚀' 
       }
       setMessages(prev => [...prev, response])
       setEmotion(detectEmotion(response.content))
       setIsThinking(false)
-      
       setTimeout(() => setEmotion('neutral'), 3000)
     }, 1500)
   }
@@ -187,7 +198,7 @@ export default function Home() {
         alignItems: 'center',
         justifyContent: 'center',
         minHeight: '100vh',
-        padding: 20,
+        backgroundColor: '#0a0a0f',
         fontFamily: 'system-ui, -apple-system, sans-serif',
         color: '#fff'
       }}>
@@ -196,26 +207,26 @@ export default function Home() {
           backgroundColor: '#1a1a2e',
           padding: 40,
           borderRadius: 16,
-          boxShadow: '0 4px 20px rgba(255, 107, 53, 0.1)'
+          boxShadow: '0 4px 30px rgba(255, 107, 53, 0.15)'
         }}>
-          <h1 style={{ marginBottom: 30, fontSize: 24 }}>🤖 MarBot2</h1>
-          <p style={{ marginBottom: 20, opacity: 0.8 }}>Enter PIN to access</p>
+          <h1 style={{ marginBottom: 30, fontSize: 28 }}>🤖 MarBot2</h1>
+          <p style={{ marginBottom: 20, opacity: 0.7 }}>Enter PIN</p>
           <input
             type="password"
             value={pinInput}
             onChange={e => setPinInput(e.target.value)}
             onKeyPress={e => e.key === 'Enter' && handlePinSubmit()}
-            placeholder="PIN"
+            placeholder="●●●●"
             style={{
               width: '100%',
-              padding: '12px 16px',
+              padding: '14px 18px',
               borderRadius: 8,
               border: 'none',
-              backgroundColor: '#0f0f1a',
+              backgroundColor: '#0a0a0f',
               color: '#fff',
-              fontSize: 18,
+              fontSize: 20,
               textAlign: 'center',
-              letterSpacing: 4,
+              letterSpacing: 8,
               marginBottom: 16,
               outline: 'none'
             }}
@@ -225,7 +236,7 @@ export default function Home() {
             onClick={handlePinSubmit}
             style={{
               width: '100%',
-              padding: '12px 24px',
+              padding: '14px 24px',
               borderRadius: 8,
               border: 'none',
               backgroundColor: '#ff6b35',
@@ -244,59 +255,45 @@ export default function Home() {
 
   return (
     <main style={{
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      minHeight: '100vh',
-      width: '100%',
+      width: '100vw',
+      height: '100vh',
+      backgroundColor: '#0a0a0f',
       fontFamily: 'system-ui, -apple-system, sans-serif',
       color: '#fff',
       position: 'relative',
       overflow: 'hidden'
     }}>
-      {/* Fullscreen Avatar */}
-      <div style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 1
-      }}>
-        <TikiAvatar emotion={emotion} speaking={isThinking} />
-      </div>
+      {/* Fullscreen Face - NO HEAD, just features */}
+      <TikiFace emotion={emotion} speaking={isThinking} />
       
-      {/* Chat box - bottom right corner */}
+      {/* Small chat box - bottom right */}
       <div style={{
         position: 'fixed',
         bottom: 20,
         right: 20,
-        width: 350,
-        backgroundColor: '#1a1a2e',
-        borderRadius: 16,
-        padding: 16,
-        boxShadow: '0 4px 20px rgba(255, 107, 53, 0.2)',
-        zIndex: 10
+        width: 320,
+        backgroundColor: 'rgba(26, 26, 46, 0.95)',
+        borderRadius: 12,
+        padding: 14,
+        boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
+        zIndex: 100
       }}>
         <div style={{
-          height: 200,
+          height: 150,
           overflowY: 'auto',
-          marginBottom: 12,
+          marginBottom: 10,
           display: 'flex',
           flexDirection: 'column',
-          gap: 8,
-          fontSize: 13
+          gap: 6,
+          fontSize: 12
         }}>
           {messages.map((msg, i) => (
             <div key={i} style={{
               alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
               backgroundColor: msg.role === 'user' ? '#ff6b35' : '#2d2d44',
-              padding: '10px 16px',
-              borderRadius: 12,
-              maxWidth: '80%'
+              padding: '8px 12px',
+              borderRadius: 10,
+              maxWidth: '85%'
             }}>
               {msg.content}
             </div>
@@ -305,11 +302,11 @@ export default function Home() {
             <div style={{
               alignSelf: 'flex-start',
               backgroundColor: '#2d2d44',
-              padding: '10px 16px',
-              borderRadius: 12,
+              padding: '8px 12px',
+              borderRadius: 10,
               opacity: 0.7
             }}>
-              <span style={{ animation: 'pulse 1s infinite' }}>●●●</span>
+              ●●●
             </div>
           )}
         </div>
@@ -322,10 +319,10 @@ export default function Home() {
             placeholder="Typ..."
             style={{
               flex: 1,
-              padding: '8px 12px',
+              padding: '10px 12px',
               borderRadius: 6,
               border: 'none',
-              backgroundColor: '#0f0f1a',
+              backgroundColor: '#0a0a0f',
               color: '#fff',
               fontSize: 13,
               outline: 'none'
@@ -334,7 +331,7 @@ export default function Home() {
           <button
             onClick={sendMessage}
             style={{
-              padding: '8px 16px',
+              padding: '10px 16px',
               borderRadius: 6,
               border: 'none',
               backgroundColor: '#ff6b35',
