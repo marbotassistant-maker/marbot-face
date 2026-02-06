@@ -142,12 +142,24 @@ export default function Home() {
   const [pinEntered, setPinEntered] = useState(false)
   const [pinInput, setPinInput] = useState('')
   const [pinError, setPinError] = useState('')
-  const [messages, setMessages] = useState([
-    { role: 'assistant', content: 'Hey! Ik ben MarBot2. Hoe kan ik je helpen?' }
-  ])
-  const [input, setInput] = useState('')
   const [emotion, setEmotion] = useState('neutral')
-  const [isThinking, setIsThinking] = useState(false)
+  const [lastMessage, setLastMessage] = useState('')
+
+  // Poll emotion API every 2 seconds
+  useEffect(() => {
+    const pollInterval = setInterval(async () => {
+      try {
+        const res = await fetch('/api/emotion')
+        const data = await res.json()
+        setEmotion(data.emotion || 'neutral')
+        setLastMessage(data.message || '')
+      } catch (err) {
+        console.error('Emotion poll failed:', err)
+      }
+    }, 2000)
+    
+    return () => clearInterval(pollInterval)
+  }, [])
 
   const handlePinSubmit = () => {
     if (pinInput === REQUIRED_PIN) {
@@ -157,37 +169,6 @@ export default function Home() {
       setPinError('Invalid PIN')
       setPinInput('')
     }
-  }
-
-  const detectEmotion = (text) => {
-    const lower = text.toLowerCase()
-    if (lower.includes('sorry') || lower.includes('oeps') || lower.includes('fout') || lower.includes('error')) return 'oops'
-    if (lower.includes('!') || lower.includes('cool') || lower.includes('nice') || lower.includes('great') || lower.includes('love')) return 'happy'
-    if (lower.includes('?') || lower.includes('hmm') || lower.includes('denk') || lower.includes('maybe')) return 'thinking'
-    if (lower.includes('wow') || lower.includes('whoa') || lower.includes('amazing')) return 'surprised'
-    return 'engaged'
-  }
-
-  const sendMessage = async () => {
-    if (!input.trim()) return
-    
-    const userMessage = { role: 'user', content: input }
-    setMessages(prev => [...prev, userMessage])
-    setInput('')
-    setIsThinking(true)
-    setEmotion('thinking')
-
-    // Demo response - replace with real API call later
-    setTimeout(() => {
-      const response = { 
-        role: 'assistant', 
-        content: 'Dit is een demo. Binnenkort word ik echt geconnect! 🚀' 
-      }
-      setMessages(prev => [...prev, response])
-      setEmotion(detectEmotion(response.content))
-      setIsThinking(false)
-      setTimeout(() => setEmotion('neutral'), 3000)
-    }, 1500)
   }
 
   if (!pinEntered) {
@@ -263,88 +244,26 @@ export default function Home() {
       position: 'relative',
       overflow: 'hidden'
     }}>
-      {/* Fullscreen Face - NO HEAD, just features */}
-      <TikiFace emotion={emotion} speaking={isThinking} />
+      {/* 100% Fullscreen Face */}
+      <TikiFace emotion={emotion} speaking={false} />
       
-      {/* Small chat box - bottom right */}
-      <div style={{
-        position: 'fixed',
-        bottom: 20,
-        right: 20,
-        width: 320,
-        backgroundColor: 'rgba(26, 26, 46, 0.95)',
-        borderRadius: 12,
-        padding: 14,
-        boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
-        zIndex: 100
-      }}>
+      {/* Optional: tiny message indicator bottom left */}
+      {lastMessage && (
         <div style={{
-          height: 150,
-          overflowY: 'auto',
-          marginBottom: 10,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 6,
-          fontSize: 12
+          position: 'fixed',
+          bottom: 30,
+          left: 30,
+          backgroundColor: 'rgba(255, 107, 53, 0.2)',
+          color: '#ff6b35',
+          padding: '8px 12px',
+          borderRadius: 6,
+          fontSize: 12,
+          maxWidth: 200,
+          opacity: 0.7
         }}>
-          {messages.map((msg, i) => (
-            <div key={i} style={{
-              alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
-              backgroundColor: msg.role === 'user' ? '#ff6b35' : '#2d2d44',
-              padding: '8px 12px',
-              borderRadius: 10,
-              maxWidth: '85%'
-            }}>
-              {msg.content}
-            </div>
-          ))}
-          {isThinking && (
-            <div style={{
-              alignSelf: 'flex-start',
-              backgroundColor: '#2d2d44',
-              padding: '8px 12px',
-              borderRadius: 10,
-              opacity: 0.7
-            }}>
-              ●●●
-            </div>
-          )}
+          {lastMessage}
         </div>
-        
-        <div style={{ display: 'flex', gap: 6 }}>
-          <input
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyPress={e => e.key === 'Enter' && sendMessage()}
-            placeholder="Typ..."
-            style={{
-              flex: 1,
-              padding: '10px 12px',
-              borderRadius: 6,
-              border: 'none',
-              backgroundColor: '#0a0a0f',
-              color: '#fff',
-              fontSize: 13,
-              outline: 'none'
-            }}
-          />
-          <button
-            onClick={sendMessage}
-            style={{
-              padding: '10px 16px',
-              borderRadius: 6,
-              border: 'none',
-              backgroundColor: '#ff6b35',
-              color: '#fff',
-              fontSize: 14,
-              cursor: 'pointer',
-              fontWeight: 'bold'
-            }}
-          >
-            →
-          </button>
-        </div>
-      </div>
+      )}
     </main>
   )
 }
