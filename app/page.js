@@ -12,7 +12,7 @@ const emotions = {
   engaged: { eyeScale: 1.1, eyeY: -2, glowIntensity: 0.7, mouthCurve: 5 },
 }
 
-function Avatar({ emotion = 'neutral', speaking = false }) {
+function TikiAvatar({ emotion = 'neutral', speaking = false }) {
   const e = emotions[emotion] || emotions.neutral
   const [blink, setBlink] = useState(false)
   const [glowPulse, setGlowPulse] = useState(0)
@@ -37,74 +37,78 @@ function Avatar({ emotion = 'neutral', speaking = false }) {
   const pulseIntensity = e.glowIntensity + Math.sin(glowPulse) * 0.1
 
   return (
-    <svg viewBox="0 0 200 200" style={{ width: 300, height: 300 }}>
-      {/* Glow effect */}
+    <svg viewBox="0 0 200 250" style={{ width: '100%', height: '100%', maxHeight: '100vh' }}>
       <defs>
-        <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+        <radialGradient id="tikiglow" cx="50%" cy="40%" r="60%">
           <stop offset="0%" stopColor="#ff6b35" stopOpacity={pulseIntensity} />
           <stop offset="100%" stopColor="#ff6b35" stopOpacity="0" />
         </radialGradient>
-        <filter id="blur">
-          <feGaussianBlur stdDeviation="3" />
-        </filter>
       </defs>
       
-      {/* Background glow */}
-      <circle cx="100" cy="100" r="90" fill="url(#glow)" filter="url(#blur)" />
+      {/* Glow */}
+      <circle cx="100" cy="80" r="80" fill="url(#tikiglow)" />
       
-      {/* Shell/Frame */}
+      {/* Left eyebrow */}
       <path 
-        d="M100 20 C150 20 180 50 180 100 C180 150 150 180 100 180 C50 180 20 150 20 100 C20 50 50 20 100 20"
+        d={`M 50 ${50 + e.eyeY * 1.5} Q 70 ${35 + e.eyeY * 1.5} 80 ${45 + e.eyeY * 1.5}`}
         fill="none"
-        stroke="#1a1a2e"
-        strokeWidth="8"
+        stroke="#ff6b35"
+        strokeWidth="4"
+        strokeLinecap="round"
+        style={{ transition: 'all 0.3s ease' }}
       />
+      
+      {/* Right eyebrow */}
       <path 
-        d="M100 25 C147 25 175 53 175 100 C175 147 147 175 100 175 C53 175 25 147 25 100 C25 53 53 25 100 25"
-        fill="#0f0f1a"
-        stroke="#2d2d44"
-        strokeWidth="2"
+        d={`M 120 ${45 + e.eyeY * 1.5} Q 130 ${35 + e.eyeY * 1.5} 150 ${50 + e.eyeY * 1.5}`}
+        fill="none"
+        stroke="#ff6b35"
+        strokeWidth="4"
+        strokeLinecap="round"
+        style={{ transition: 'all 0.3s ease' }}
       />
       
       {/* Left eye */}
-      <ellipse 
-        cx="70" 
-        cy={95 + e.eyeY} 
-        rx={18 * e.eyeScale} 
-        ry={blink ? 2 : 22 * e.eyeScale}
+      <circle 
+        cx="65" 
+        cy={70 + e.eyeY} 
+        r={blink ? 3 : 12 * e.eyeScale}
         fill="#ff6b35"
         style={{ transition: 'all 0.2s ease' }}
       />
-      <ellipse 
-        cx="70" 
-        cy={95 + e.eyeY} 
-        rx={8 * e.eyeScale} 
-        ry={blink ? 1 : 10 * e.eyeScale}
+      <circle 
+        cx="65" 
+        cy={70 + e.eyeY} 
+        r={blink ? 1 : 6 * e.eyeScale}
         fill="#0f0f1a"
         style={{ transition: 'all 0.2s ease' }}
       />
       
       {/* Right eye */}
-      <ellipse 
-        cx="130" 
-        cy={95 + e.eyeY} 
-        rx={18 * e.eyeScale} 
-        ry={blink ? 2 : 22 * e.eyeScale}
+      <circle 
+        cx="135" 
+        cy={70 + e.eyeY} 
+        r={blink ? 3 : 12 * e.eyeScale}
         fill="#ff6b35"
         style={{ transition: 'all 0.2s ease' }}
       />
-      <ellipse 
-        cx="130" 
-        cy={95 + e.eyeY} 
-        rx={8 * e.eyeScale} 
-        ry={blink ? 1 : 10 * e.eyeScale}
+      <circle 
+        cx="135" 
+        cy={70 + e.eyeY} 
+        r={blink ? 1 : 6 * e.eyeScale}
         fill="#0f0f1a"
         style={{ transition: 'all 0.2s ease' }}
       />
       
+      {/* Nose (tiki style - triangle) */}
+      <polygon 
+        points="100,95 95,110 105,110"
+        fill="#ff6b35"
+      />
+      
       {/* Mouth */}
       <path 
-        d={`M 70 140 Q 100 ${140 + e.mouthCurve} 130 140`}
+        d={`M 75 130 Q 100 ${135 + e.mouthCurve * 1.5} 125 130`}
         fill="none"
         stroke="#ff6b35"
         strokeWidth="3"
@@ -114,7 +118,7 @@ function Avatar({ emotion = 'neutral', speaking = false }) {
       
       {/* Speaking indicator */}
       {speaking && (
-        <circle cx="100" cy="160" r="5" fill="#ff6b35">
+        <circle cx="100" cy="160" r="4" fill="#ff6b35">
           <animate attributeName="opacity" values="1;0.3;1" dur="0.5s" repeatCount="indefinite" />
         </circle>
       )}
@@ -241,32 +245,50 @@ export default function Home() {
   return (
     <main style={{
       display: 'flex',
-      flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
       minHeight: '100vh',
-      padding: 20,
+      width: '100%',
       fontFamily: 'system-ui, -apple-system, sans-serif',
-      color: '#fff'
+      color: '#fff',
+      position: 'relative',
+      overflow: 'hidden'
     }}>
-      <Avatar emotion={emotion} speaking={isThinking} />
-      
+      {/* Fullscreen Avatar */}
       <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
         width: '100%',
-        maxWidth: 500,
-        marginTop: 20,
+        height: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1
+      }}>
+        <TikiAvatar emotion={emotion} speaking={isThinking} />
+      </div>
+      
+      {/* Chat box - bottom right corner */}
+      <div style={{
+        position: 'fixed',
+        bottom: 20,
+        right: 20,
+        width: 350,
         backgroundColor: '#1a1a2e',
         borderRadius: 16,
-        padding: 20,
-        boxShadow: '0 4px 20px rgba(255, 107, 53, 0.1)'
+        padding: 16,
+        boxShadow: '0 4px 20px rgba(255, 107, 53, 0.2)',
+        zIndex: 10
       }}>
         <div style={{
-          height: 300,
+          height: 200,
           overflowY: 'auto',
-          marginBottom: 16,
+          marginBottom: 12,
           display: 'flex',
           flexDirection: 'column',
-          gap: 12
+          gap: 8,
+          fontSize: 13
         }}>
           {messages.map((msg, i) => (
             <div key={i} style={{
@@ -292,32 +314,32 @@ export default function Home() {
           )}
         </div>
         
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 6 }}>
           <input
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyPress={e => e.key === 'Enter' && sendMessage()}
-            placeholder="Typ een bericht..."
+            placeholder="Typ..."
             style={{
               flex: 1,
-              padding: '12px 16px',
-              borderRadius: 8,
+              padding: '8px 12px',
+              borderRadius: 6,
               border: 'none',
               backgroundColor: '#0f0f1a',
               color: '#fff',
-              fontSize: 16,
+              fontSize: 13,
               outline: 'none'
             }}
           />
           <button
             onClick={sendMessage}
             style={{
-              padding: '12px 24px',
-              borderRadius: 8,
+              padding: '8px 16px',
+              borderRadius: 6,
               border: 'none',
               backgroundColor: '#ff6b35',
               color: '#fff',
-              fontSize: 16,
+              fontSize: 14,
               cursor: 'pointer',
               fontWeight: 'bold'
             }}
@@ -326,27 +348,8 @@ export default function Home() {
           </button>
         </div>
       </div>
+    </main>
       
-      {/* Emotion test buttons */}
-      <div style={{ marginTop: 20, display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
-        {Object.keys(emotions).map(e => (
-          <button
-            key={e}
-            onClick={() => setEmotion(e)}
-            style={{
-              padding: '8px 16px',
-              borderRadius: 20,
-              border: emotion === e ? '2px solid #ff6b35' : '2px solid #2d2d44',
-              backgroundColor: 'transparent',
-              color: '#fff',
-              cursor: 'pointer',
-              fontSize: 14
-            }}
-          >
-            {e}
-          </button>
-        ))}
-      </div>
     </main>
   )
 }
